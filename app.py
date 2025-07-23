@@ -41,17 +41,17 @@ def take_stealth_screenshot(url):
             Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
         """)
         page = context.new_page()
-        page.goto(url, timeout=20000)
+        page.goto(url, timeout=60000)
         print('starting sleep')
-        time.sleep(2)
+        time.sleep(5)
         print('sleep ended')
 
-        try:
-            print('waiting for h1')
-            page.wait_for_selector('h1, .product-title', timeout=2000)
-        except:
-            print('wait timed out')
-            pass
+        #try:
+        #    print('waiting for h1')
+        #    page.wait_for_selector('h1, .product-title', timeout=2000)
+        #except:
+        #    print('wait timed out')
+        #    pass
 
         print('look for cookie popup')
         handle_cookie_popup(page)
@@ -82,12 +82,12 @@ def handle_cookie_popup(page):
         try:
             print('found selector')
             # Wait briefly for the popup button to appear
-            button = page.wait_for_selector(selector, timeout=100)
+            button = page.wait_for_selector(selector, timeout=2000)
             if button:
                 button.click()
                 print(f"Cookie popup accepted/closed with selector: {selector}")
                 # Wait a moment for popup to go away
-                page.wait_for_timeout(1000)
+                page.wait_for_timeout(2000)
                 return True
         except:
             # Selector not found, try next
