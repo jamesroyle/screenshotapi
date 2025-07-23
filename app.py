@@ -43,7 +43,7 @@ def take_stealth_screenshot(url):
         page = context.new_page()
 
         page.route("**/*", lambda route, request: 
-            route.abort() if request.resource_type in ["image", "font"] else route.continue_()
+            route.abort() if request.resource_type in ["image"] else route.continue_()
         )
         
         page.goto(url, timeout=120000)
