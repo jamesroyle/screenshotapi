@@ -43,7 +43,7 @@ def take_stealth_screenshot(url):
         page = context.new_page()
 
         page.route("**/*", lambda route, request: 
-            route.abort() if request.resource_type in ["image", "stylesheet"] else route.continue_()
+            route.abort() if request.resource_type in ["image", "font"] else route.continue_()
         )
         
         page.goto(url, timeout=120000)
@@ -61,7 +61,7 @@ def take_stealth_screenshot(url):
         print('look for cookie popup')
         handle_cookie_popup(page)
 
-        screenshot_bytes = page.screenshot(type='jpeg', quality=80)
+        screenshot_bytes = page.screenshot(type='jpeg', quality=80, timeout=60000)
         buffer.write(screenshot_bytes)
         buffer.seek(0)
 
@@ -92,7 +92,7 @@ def handle_cookie_popup(page):
                 button.click()
                 print(f"Cookie popup accepted/closed with selector: {selector}")
                 # Wait a moment for popup to go away
-                page.wait_for_timeout(20000)
+                page.wait_for_timeout(5000)
                 return True
         except:
             # Selector not found, try next
