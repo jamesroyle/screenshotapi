@@ -43,12 +43,12 @@ def take_stealth_screenshot(url):
         page = context.new_page()
 
         page.route("**/*", lambda route, request: 
-            route.abort() if request.resource_type in ["image", "font", "stylesheet"] else route.continue_()
+            route.abort() if request.resource_type in ["image", "stylesheet"] else route.continue_()
         )
         
-        page.goto(url, timeout=60000)
+        page.goto(url, timeout=120000)
         print('starting sleep')
-        time.sleep(5)
+        time.sleep(20)
         print('sleep ended')
 
         #try:
@@ -72,12 +72,12 @@ def handle_cookie_popup(page):
     # List of common selectors for cookie banners/buttons
     selectors = [
         'input#sp-cc-accept',                   # amazon
+        'button:has-text("Allow all")',
         'button#accept-cookies',                # example id
         'button.cookie-accept',                 # example class
         'button:has-text("Accept")',            # text-based selector (Playwright supports this)
         'button:has-text("Agree")',
-        'button:has-text("Got it")',
-        'button:has-text("Allow all")',
+        'button:has-text("Got it")',        
         'text="Accept Cookies"',
         'text="I Agree"',
         'div.cookie-banner button.close',      # common close button
@@ -87,12 +87,12 @@ def handle_cookie_popup(page):
         try:
             print('found selector')
             # Wait briefly for the popup button to appear
-            button = page.wait_for_selector(selector, timeout=2000)
+            button = page.wait_for_selector(selector, timeout=20000)
             if button:
                 button.click()
                 print(f"Cookie popup accepted/closed with selector: {selector}")
                 # Wait a moment for popup to go away
-                page.wait_for_timeout(2000)
+                page.wait_for_timeout(20000)
                 return True
         except:
             # Selector not found, try next
