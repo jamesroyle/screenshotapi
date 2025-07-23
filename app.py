@@ -41,6 +41,11 @@ def take_stealth_screenshot(url):
             Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
         """)
         page = context.new_page()
+
+        page.route("**/*", lambda route, request: 
+            route.abort() if request.resource_type in ["image", "font", "stylesheet"] else route.continue_()
+        )
+        
         page.goto(url, timeout=60000)
         print('starting sleep')
         time.sleep(5)
