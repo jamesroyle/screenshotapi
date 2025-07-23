@@ -41,7 +41,7 @@ def take_stealth_screenshot(url):
             Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
         """)
         page = context.new_page()
-        page.goto(url, timeout=10000)
+        page.goto(url, timeout=20000)
         print('starting sleep')
         time.sleep(2)
         print('sleep ended')
