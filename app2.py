@@ -96,10 +96,10 @@ def handle_cookie_popup(page):
 
     for selector in selectors:
         try:
-            button = page.wait_for_selector(selector, timeout=500)
+            button = page.wait_for_selector(selector, timeout=10000)
             if button:
                 button.click()
-                page.wait_for_timeout(500)
+                page.wait_for_timeout(10000)
                 print(f"✅ Cookie popup closed using: {selector}")
                 break
         except:
