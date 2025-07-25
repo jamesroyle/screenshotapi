@@ -27,7 +27,19 @@ def ensure_browser_initialized():
             if not browser_initialized:  # double-checked locking
                 print("🚀 Initializing Playwright browser...")
                 playwright = sync_playwright().start()
-                browser = playwright.chromium.launch(headless=False)
+
+                browser = playwright.chromium.launch(
+                    headless=False,
+                    args=[
+                        '--disable-dev-shm-usage',
+                        '--disable-gpu',
+                        '--no-sandbox',
+                        '--disable-setuid-sandbox',
+                        '--start-maximized',
+                        '--disable-blink-features=AutomationControlled'
+                    ],
+                )
+                
                 context = browser.new_context(
                     viewport={"width": 1280, "height": 1280},
                     user_agent=(
