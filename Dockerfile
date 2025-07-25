@@ -32,9 +32,6 @@ RUN apt-get update && apt-get install -y \
     lsb-release \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a non-root user
-RUN useradd -ms /bin/bash appuser    
-
 # Set work directory
 WORKDIR /app
 
@@ -49,12 +46,6 @@ RUN playwright install --with-deps
 
 # copy everything else to speed up rebuilds
 COPY . .
-
-# Set ownership to non-root user
-RUN chown -R appuser:appuser /app
-
-# Switch to non-root user
-USER appuser
 
 # Expose the port your Flask app will run on
 EXPOSE 5000
