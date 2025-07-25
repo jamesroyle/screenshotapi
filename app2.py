@@ -58,7 +58,7 @@ def screenshot():
     page = context.new_page()
 
     try:
-        page.goto(url, timeout=10000, wait_until="load")
+        page.goto(url, timeout=120000, wait_until="load")
         if domain not in visited_domains:
             print(f"🔍 Handling cookie popup for domain: {domain}")
             handle_cookie_popup(page)
