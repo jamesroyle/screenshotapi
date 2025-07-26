@@ -32,7 +32,7 @@ def screenshot():
     
     t = time.time()
     context = browser.new_context(
-        viewport={"width": 1280, "height": 1280},
+        viewport={"width": 1024, "height": 1024},
         user_agent=(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
             "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -62,7 +62,7 @@ def screenshot():
 
     try:
         t = time.time()
-        page.goto(url, timeout=120000, wait_until="load")
+        page.goto(url, timeout=120000, wait_until="domcontentloaded")
         print('page load - ', time.time()-t)
         if domain not in visited_domains:
             print(f"🔍 Handling cookie popup for domain: {domain}")
