@@ -5,7 +5,6 @@ from flask import Flask, request, send_file, jsonify
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 from urllib.parse import urlparse
 import time
-import psutil
 
 API_KEY = 'ThisIsTheAPIKey'  # Set in Render or Docker env
 
@@ -19,22 +18,6 @@ cks = None
 browser_initialized = False
 visited_domains = set()
 init_lock = threading.Lock()
-
-def log_memory_usage(note=""):
-    process = psutil.Process(os.getpid())
-    mem_mb = process.memory_info().rss / 1024 / 1024  # RSS = Resident Set Size
-    print(f"🧠 Memory usage {note}: {mem_mb:.2f} MB")
-
-def total_memory_usage(note=""):
-    parent = psutil.Process(os.getpid())
-    children = parent.children(recursive=True)
-    total = parent.memory_info().rss
-    for child in children:
-        try:
-            total += child.memory_info().rss
-        except psutil.NoSuchProcess:
-            pass
-    print(f"🧠 Total memory (including Chromium) {note}: {total / 1024 / 1024:.2f} MB")    
 
 @app.before_request
 def ensure_browser_initialized():
@@ -75,11 +58,9 @@ def ensure_browser_initialized():
 @app.route("/screenshot")
 def screenshot():
     global cks
-    total_memory_usage("before request")
+
     t1 = time.time()
-
-
-
+    
     key = request.args.get("key")
     if key != API_KEY:
         return jsonify({"error": "Unauthorized"}), 401
@@ -118,18 +99,11 @@ def screenshot():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     finally:
-        total_memory_usage("before page close")
         page.close()
-        total_memory_usage("after page close")
         cks = context.cookies()
         context.close()
-        total_memory_usage("after context close")
         browser.close()
-        total_memory_usage("after browser close")
-        playwright.stop()
-        total_memory_usage("after closing everything")
-
-        
+        playwright.stop()      
 
 def handle_cookie_popup(page):
     selectors = [
