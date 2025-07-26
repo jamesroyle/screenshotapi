@@ -11,56 +11,42 @@ API_KEY = 'ThisIsTheAPIKey'  # Set in Render or Docker env
 app = Flask(__name__)
 
 # Global browser objects
-playwright = None
-browser = None
-context = None
 cks = None
-browser_initialized = False
 visited_domains = set()
-init_lock = threading.Lock()
-
-@app.before_request
-def ensure_browser_initialized():
-    global browser_initialized, playwright, browser, context
-
-    if not browser_initialized:
-        with init_lock:
-            if not browser_initialized:  # double-checked locking
-                print("🚀 Initializing Playwright browser...")
-
-                t = time.time()
-                playwright = sync_playwright().start()
-                print('initiate playwright - ', time.time()-t)
-                
-                t = time.time()
-                browser = playwright.chromium.launch(headless=False)
-                print('initiate browser - ', time.time()-t)
-                
-                t = time.time()
-                context = browser.new_context(
-                    viewport={"width": 1280, "height": 1280},
-                    user_agent=(
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                        "AppleWebKit/537.36 (KHTML, like Gecko) "
-                        "Chrome/115.0.0.0 Safari/537.36"
-                    ),
-                )
-                context.add_init_script("""
-                    Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-                """)
-                
-                if cks != None:
-                    context.add_cookies(cks)
-                print('initiate context - ', time.time()-t)    
-
-                browser_initialized = False                
 
 @app.route("/screenshot")
 def screenshot():
     global cks
 
     t1 = time.time()
+
+    print("🚀 Initializing Playwright browser...")
+
+    t = time.time()
+    playwright = sync_playwright().start()
+    print('initiate playwright - ', time.time()-t)
     
+    t = time.time()
+    browser = playwright.chromium.launch(headless=False)
+    print('initiate browser - ', time.time()-t)
+    
+    t = time.time()
+    context = browser.new_context(
+        viewport={"width": 1280, "height": 1280},
+        user_agent=(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/115.0.0.0 Safari/537.36"
+        ),
+    )
+    context.add_init_script("""
+        Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+    """)
+    
+    if cks != None:
+        context.add_cookies(cks)
+    print('initiate context - ', time.time()-t) 
+   
     key = request.args.get("key")
     if key != API_KEY:
         return jsonify({"error": "Unauthorized"}), 401
@@ -107,13 +93,13 @@ def screenshot():
 
 def handle_cookie_popup(page):
     selectors = [
+        'button:has-text("Allow all")',
         'input#sp-cc-accept',
         'button#accept-cookies',
         'button.cookie-accept',
         'button:has-text("Accept")',
         'button:has-text("Agree")',
         'button:has-text("Got it")',
-        'button:has-text("Allow all")',
         'text="Accept Cookies"',
         'text="I Agree"',
         'div.cookie-banner button.close',
@@ -121,7 +107,7 @@ def handle_cookie_popup(page):
 
     for selector in selectors:
         try:
-            button = page.wait_for_selector(selector, timeout=10000)
+            button = page.wait_for_selector(selector, timeout=5000)
             if button:
                 button.click()
                 page.wait_for_timeout(5000)
