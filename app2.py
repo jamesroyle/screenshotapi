@@ -107,7 +107,7 @@ def handle_cookie_popup(page):
 
     for selector in selectors:
         try:
-            button = page.wait_for_selector(selector, timeout=5000)
+            button = page.wait_for_selector(selector, timeout=10000)
             if button:
                 button.click()
                 page.wait_for_timeout(5000)
@@ -118,4 +118,4 @@ def handle_cookie_popup(page):
 
 if __name__ == "__main__":
     print("🔧 Starting Flask app...")
-    app.run(host="0.0.0.0", port=5000, threaded=False)
+    app.run(host="0.0.0.0", port=5000, threaded=False, use_reloader=False)
